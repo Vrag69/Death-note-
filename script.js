@@ -183,11 +183,11 @@ let hintUsed = false;
 let intervalId = null;
 let audioStarted = false;
 
-// ⏱ TIME CONFIG
-const BASE_TIME = 30;               // Level 1 time
-const TIME_INCREMENT_PER_LEVEL = 5; // +5 sec each level
+// TIME CONFIG
+const BASE_TIME = 30;
+const TIME_INCREMENT_PER_LEVEL = 5;
 
-// === DOM ELEMENTS ===
+// DOM
 const timerEl = document.getElementById("timer");
 const statusEl = document.getElementById("status");
 const buttons = document.querySelectorAll(".options button");
@@ -208,42 +208,16 @@ const bgMusic = document.getElementById("bgMusic");
 const warningSound = document.getElementById("warningSound");
 const kiraVoice = document.getElementById("kiraVoice");
 
-// === AUDIO HELPER ===
+// === AUDIO (simple + safe) ===
+// Your file is already trimmed, so just play from 0.
 function ensureAudioStarted() {
   if (audioStarted) return;
   audioStarted = true;
 
   if (!bgMusic) return;
 
-  const startAt = 11; // seconds
-
-  // If metadata already loaded, we can safely jump
-  const trySeek = () => {
-    try {
-      if (!isNaN(bgMusic.duration) && bgMusic.duration > startAt) {
-        bgMusic.currentTime = startAt;
-      }
-    } catch (e) {
-      console.log("Seek error (non-fatal):", e);
-    }
-  };
-
-  // If not loaded yet, wait for it once
-  if (isNaN(bgMusic.duration) || bgMusic.duration === Infinity) {
-    bgMusic.addEventListener("loadedmetadata", () => {
-      trySeek();
-    }, { once: true });
-  } else {
-    trySeek();
-  }
-
   bgMusic.volume = 0.35;
-  bgMusic.play().then(() => {
-    // After play starts, ensure we're near 11s
-    if (bgMusic.currentTime < startAt - 0.5) {
-      trySeek();
-    }
-  }).catch(err => {
+  bgMusic.play().catch(err => {
     console.log("Audio play blocked or failed:", err);
   });
 }
@@ -287,7 +261,7 @@ function startTimer() {
   }, 1000);
 }
 
-// === PUZZLE LOADING ===
+// === LOAD PUZZLE ===
 function loadPuzzle(index) {
   currentIndex = index;
   const puzzle = puzzles[index];
@@ -322,7 +296,7 @@ function loadPuzzle(index) {
   startTimer();
 }
 
-// === CHOICE HANDLER ===
+// === HANDLE CHOICE ===
 function handleChoice(option, btn) {
   if (isGameOver) return;
   ensureAudioStarted();
@@ -376,7 +350,7 @@ function endGame(success, message) {
   }
 }
 
-// === EVENT LISTENERS ===
+// === EVENTS ===
 buttons.forEach((btn) => {
   btn.addEventListener("click", () => {
     const chosen = btn.getAttribute("data-option");
@@ -390,9 +364,12 @@ hintBtn.addEventListener("click", () => {
 
   hintUsed = true;
   const puzzle = puzzles[currentIndex];
+
+  // 🔥 HINT TEXT UPDATE
   hintTextEl.textContent = puzzle.hint || "Trust your instincts. The room feeds on doubt.";
   hintTextEl.classList.remove("dim");
 
+  // time penalty
   timeLeft = Math.max(timeLeft - 5, 5);
   updateTimerDisplay();
 
@@ -414,11 +391,11 @@ restartBtn.addEventListener("click", () => {
   loadPuzzle(currentIndex);
 });
 
-// START BUTTON – only here the game actually begins
+// START BUTTON
 startBtn.addEventListener("click", () => {
   ensureAudioStarted();
   startOverlay.classList.add("hidden");
   loadPuzzle(0);
 });
 
-// no loadPuzzle(0) here – waits for START
+// no loadPuzzle(0) at bottom → waits for START
