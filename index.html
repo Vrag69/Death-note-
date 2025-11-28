@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lawlit: Deadline Protocol</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="noise"></div>
+
+  <!-- START OVERLAY WINDOW -->
+  <div id="startOverlay" class="start-overlay">
+    <div class="start-window">
+      <h2 class="start-title">DEADLINE PROTOCOL</h2>
+      <p class="start-subtitle">
+        Lawlit is trapped in a mental maze. Each puzzle is a step away from Kira's Death Note.<br/>
+        <span class="keyword">Solve the logic. Beat the clock. Or get written.</span>
+      </p>
+      <p class="start-hint">
+        • 10 mind-bending logic puzzles<br/>
+        • Timer pressure + hints (with penalty)<br/>
+        • Psychological horror atmosphere
+      </p>
+      <button id="startBtn" class="start-btn">START GAME</button>
+      <p class="start-footer">Headphones + dark room recommended.</p>
+    </div>
+  </div>
+
+  <!-- MAIN GAME UI -->
+  <div class="container">
+    <div class="top-bar">
+      <span class="label">Case: <span class="value">LAWLIT / KIRA</span></span>
+      <span class="label">
+        Deadline: <span id="timer" class="value timer-normal">00:30</span>
+      </span>
+    </div>
+
+    <h1 class="title glitch-text" data-text="DEADLINE PROTOCOL">
+      DEADLINE PROTOCOL
+    </h1>
+    <p class="subtitle">
+      If the clock hits zero,<span class="keyword"> your name is written</span>.
+    </p>
+
+    <div class="puzzle-box">
+      <div class="puzzle-label">Puzzle 01 / Mind-Bending Logic</div>
+      <div class="puzzle-title">Truth or Lie?</div>
+
+      <p class="question">
+        Exactly <span class="keyword">one</span> of these statements is true.
+        Lawlit has seconds to decide. Which option is correct?
+      </p>
+
+      <ul class="options">
+        <li><button data-option="A">A: The answer is C.</button></li>
+        <li><button data-option="B">B: The answer is D.</button></li>
+        <li><button data-option="C">C: The answer is not A.</button></li>
+        <li><button data-option="D">D: The answer is B.</button></li>
+      </ul>
+
+      <p id="status" class="status"></p>
+
+      <p id="hintRow" class="hint-row">
+        Hint: <span id="hintText" class="hint-text dim">
+          Click "Hint" if you're desperate.
+        </span>
+      </p>
+
+      <div class="bottom-actions">
+        <button id="hintBtn" class="hint-btn">HINT</button>
+        <button id="nextBtn" class="next" style="display:none;">NEXT TASK</button>
+        <button id="restartBtn" class="restart" style="display:none;">RESTART</button>
+      </div>
+
+      <p class="footer-text dim">
+        If more than one statement becomes true at the same time, Lawlit dies.
+      </p>
+    </div>
+  </div>
+
+  <!-- AUDIO: you must provide these files inside an "audio" folder -->
+  <audio id="bgMusic" src="audio/bg-music.mp3" loop></audio>
+  <audio id="warningSound" src="audio/warning.mp3"></audio>
+  <audio id="kiraVoice" src="audio/kira-voice.mp3"></audio>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
