@@ -184,8 +184,8 @@ let intervalId = null;
 let audioStarted = false;
 
 // ⏱ TIME CONFIG
-const BASE_TIME = 30;               // Level 1
-const TIME_INCREMENT_PER_LEVEL = 5; // +5 sec per level (change to 10 if you want)
+const BASE_TIME = 30;               // Level 1 time
+const TIME_INCREMENT_PER_LEVEL = 5; // +5 sec each level
 
 // === DOM ELEMENTS ===
 const timerEl = document.getElementById("timer");
@@ -208,16 +208,47 @@ const bgMusic = document.getElementById("bgMusic");
 const warningSound = document.getElementById("warningSound");
 const kiraVoice = document.getElementById("kiraVoice");
 
-// === HELPERS ===
+// === AUDIO HELPER ===
 function ensureAudioStarted() {
   if (audioStarted) return;
   audioStarted = true;
-  if (bgMusic) {
-    bgMusic.volume = 0.35;
-    bgMusic.play().catch(() => {});
+
+  if (!bgMusic) return;
+
+  const startAt = 11; // seconds
+
+  // If metadata already loaded, we can safely jump
+  const trySeek = () => {
+    try {
+      if (!isNaN(bgMusic.duration) && bgMusic.duration > startAt) {
+        bgMusic.currentTime = startAt;
+      }
+    } catch (e) {
+      console.log("Seek error (non-fatal):", e);
+    }
+  };
+
+  // If not loaded yet, wait for it once
+  if (isNaN(bgMusic.duration) || bgMusic.duration === Infinity) {
+    bgMusic.addEventListener("loadedmetadata", () => {
+      trySeek();
+    }, { once: true });
+  } else {
+    trySeek();
   }
+
+  bgMusic.volume = 0.35;
+  bgMusic.play().then(() => {
+    // After play starts, ensure we're near 11s
+    if (bgMusic.currentTime < startAt - 0.5) {
+      trySeek();
+    }
+  }).catch(err => {
+    console.log("Audio play blocked or failed:", err);
+  });
 }
 
+// === TIMER ===
 function updateTimerDisplay() {
   const seconds = Math.max(timeLeft, 0);
   const formatted = "00:" + String(seconds).padStart(2, "0");
@@ -227,7 +258,6 @@ function updateTimerDisplay() {
 function startTimer() {
   if (intervalId) clearInterval(intervalId);
 
-  // 🕒 Time scales with level
   timeLeft = BASE_TIME + currentIndex * TIME_INCREMENT_PER_LEVEL;
   updateTimerDisplay();
 
@@ -257,6 +287,7 @@ function startTimer() {
   }, 1000);
 }
 
+// === PUZZLE LOADING ===
 function loadPuzzle(index) {
   currentIndex = index;
   const puzzle = puzzles[index];
@@ -291,6 +322,7 @@ function loadPuzzle(index) {
   startTimer();
 }
 
+// === CHOICE HANDLER ===
 function handleChoice(option, btn) {
   if (isGameOver) return;
   ensureAudioStarted();
@@ -312,6 +344,7 @@ function handleChoice(option, btn) {
   }
 }
 
+// === END GAME ===
 function endGame(success, message) {
   if (isGameOver) return;
   isGameOver = true;
@@ -360,7 +393,6 @@ hintBtn.addEventListener("click", () => {
   hintTextEl.textContent = puzzle.hint || "Trust your instincts. The room feeds on doubt.";
   hintTextEl.classList.remove("dim");
 
-  // hint penalty
   timeLeft = Math.max(timeLeft - 5, 5);
   updateTimerDisplay();
 
